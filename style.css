@@ -34,6 +34,8 @@ label {
 
 input[type="text"],
 input[type="date"],
+input[type="email"],
+input[type="password"],
 select,
 input[type="submit"] {
     width: 100%;
@@ -81,8 +83,7 @@ button:hover {
 }
 
 a {
-    text-decoration: none;
-    color: #fff;
+    color: #c24c73e7;
     border: none;
     cursor: pointer;
     font-size: 16px;

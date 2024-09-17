@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Login</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h2>Entrez votre adresse email</h2>
@@ -12,6 +13,8 @@
     </form>
 
     <?php
+    session_start();
+    
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     
@@ -20,30 +23,30 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
         $email = $_POST['email'];
 
-        // Protection contre les injections SQL
         $email = stripslashes($email);
         $email = mysqli_real_escape_string($conn, $email);
 
-        // Requête pour vérifier l'existence de l'e-mail
         $sql = "SELECT id FROM admin WHERE email = '$email'";
         $result = mysqli_query($conn, $sql);
 
         if (mysqli_num_rows($result) == 1) {
-            // Envoi de l'email (à vérifier si mail() fonctionne bien)
-            if (mail($email, "Modification de mot de passe", "Votre mot de passe a été modifié")) {
-                $new_password = '123456';
+            $verification_code = rand(10000000, 99999999);
+            
+            $subject = "Votre code de vérification";
+            $message = "Votre code de vérification est : $verification_code";
+            $headers = "From: noreply@votre_site.com";
 
-                $update_sql = "UPDATE admin SET mdp = '$new_password' WHERE email = '$email'";
-                if (mysqli_query($conn, $update_sql)) {
-                    echo "Mot de passe mis à jour avec succès.";
-                } else {
-                    echo "Erreur de mise à jour du mot de passe : " . mysqli_error($conn);
-                }
+            if (mail($email, $subject, $message, $headers)) {
+                $_SESSION['verification_code'] = $verification_code;
+                $_SESSION['email'] = $email;
+
+                header("Location: verification_code.php");
+                exit();
             } else {
                 echo "Erreur lors de l'envoi de l'e-mail.";
             }
         } else {
-            echo "E-mail non trouvé";
+            echo "E-mail non trouvé.";
         }
     }
     ?>
